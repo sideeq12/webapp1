@@ -1,0 +1,44 @@
+<%- include("header"); -%>
+
+<div class="jumbotron" >
+    <d1v class="row">
+        <div class="col-md-3">
+    <h2 style="color:white">417 Tonight</h2>
+</div>
+<div class="col-md-3"><h4 style="color: white;">Welcome back <%= username %></h4>
+<a href="/eventform"><button class="btn btn-success">create event</button></a></div>
+<div class="col-md-3">
+  <form action="search1" method="POST"> 
+    <input type="text" name="search" > <button type="submit" class="btn btn-primary">Search</button>
+  </form>
+</div>
+</d1v>
+
+
+</div>
+<h4 style="text-align: center;">  Event list</h4>
+  <% list.forEach((arr)=>{ %>
+    <div class="container">
+      <div class="card flex-row flex-wrap">
+        <div class="card-header border-0">
+          <img src="cute.png" />
+        </div> 
+        <div class="card-text"><h4 class="card-title"><%= arr.eventName %></h4>  
+   <br/>
+   Event date : <%= arr.eventDate %><br/>
+   Event begins :<%= arr.startTime %><br/>
+   Event ends : <%= arr.endTime %><br/>
+   Address : <%= arr.address %><br/>
+   City : <%= arr.city %><br/>
+   State : <%= arr.state %><br/>
+   Description : <%= arr.description %>
+
+</div> 
+</div></div>
+<% }) %>
+
+
+
+
+<%- include("footer"); -%>
+
