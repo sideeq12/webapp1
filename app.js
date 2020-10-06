@@ -11,7 +11,7 @@ app.set('view engine', 'ejs')
 
 
 // initialising mongo database
-mongoose.connect("mongodb://localhost:27017/webapp", {useNewUrlParser: true, useUnifiedTopology : true})
+mongoose.connect("mongodb+srv://sideeq:sideeq11@cluster0.7rhnk.mongodb.net/webapp", {useNewUrlParser: true, useUnifiedTopology : true})
 
 
 // creating event schema
