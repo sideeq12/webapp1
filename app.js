@@ -2,6 +2,7 @@ const express = require('express');
 const BodyParser = require("body-parser");
 const { urlencoded } = require('body-parser');
 const mongoose = require("mongoose");
+const encrypt = require("mongoose-encryption")
 
 // initialising webapp
 const app = express();
@@ -36,6 +37,9 @@ const loginschema = new mongoose.Schema({
     email : String,
     password : String
 })
+const secret = "lmaooJusttryandguessthemotherfuckingpassword";
+
+loginschema.plugin(encrypt , {secret : secret, encryptedFields : ['password']})
 
 const User_data = new mongoose.model("User", loginschema);
 
@@ -100,7 +104,7 @@ app.post("/create", (req,res)=>{
         if(err){
             console.log(err)
         }else{
-            if(ret){
+            if(ret > 0){
                 res.render("create", {passwordmessage : "", emailmessage : "Email already been used!"})
             }else{
                 if(pass1 === pass2){
