@@ -81,7 +81,7 @@ app.get("/sign", (req, res)=>{
     res.render('sign', {errormessage : ""})
 })
 app.get("/create", (req, res)=>{
-    res.render("create", {passwordmessage : ""})
+    res.render("create", {passwordmessage : "" , emailmessage : ""})
 })
 app.get("/cr",(req,res)=>{
     res.redirect("eventform")
@@ -95,20 +95,32 @@ app.get("/cr",(req,res)=>{
 app.post("/create", (req,res)=>{
     let pass1 = req.body.password;
     let pass2 = req.body.confirmPassword;
-    if(pass1 === pass2){
-        const user = new User_data({
-            first_name : req.body.firstname,
-            Sur_name : req.body.surname,
-            email : req.body.email,
-            password : req.body.password
-        })
-        user.save((err)=>{
-            if(err){console.log(err)}else{
-        res.render("dashboard", {list : eventArray, username: req.body.surname})}
-        })
-    }else{
-        res.render("create" ,{ passwordmessage : "password not match!"})
-    }
+    let email = req.body.email;
+    User_data.find({email : email}, (err, ret)=>{
+        if(err){
+            console.log(err)
+        }else{
+            if(ret){
+                res.render("create", {passwordmessage : "", emailmessage : "Email already been used!"})
+            }else{
+                if(pass1 === pass2){
+                    const user = new User_data({
+                        first_name : req.body.firstname,
+                        Sur_name : req.body.surname,
+                        email : req.body.email,
+                        password : req.body.password
+                    })
+                    user.save((err)=>{
+                        if(err){console.log(err)}else{
+                    res.render("dashboard", {list : eventArray, username: req.body.surname})}
+                    })
+                }else{
+                    res.render("create" ,{ passwordmessage : "password not match!"})
+                }
+            }
+        }
+    })
+    
 
 })
 
