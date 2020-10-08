@@ -2,13 +2,16 @@ const express = require('express');
 const BodyParser = require("body-parser");
 const { urlencoded } = require('body-parser');
 const mongoose = require("mongoose");
-const encrypt = require("mongoose-encryption")
+const bcrypt = require("bcrypt");
+const saltrounds = 10;
+
 
 // initialising webapp
 const app = express();
 app.use(BodyParser.urlencoded({extended: true}));
 app.use(express.static('public'));
 app.set('view engine', 'ejs')
+
 
 
 // initialising mongo database
@@ -37,9 +40,6 @@ const loginschema = new mongoose.Schema({
     email : String,
     password : String
 })
-const secret = "lmaooJusttryandguessthemotherfuckingpassword";
-
-loginschema.plugin(encrypt , {secret : secret, encryptedFields : ['password']})
 
 const User_data = new mongoose.model("User", loginschema);
 
@@ -108,16 +108,30 @@ app.post("/create", (req,res)=>{
                 res.render("create", {passwordmessage : "", emailmessage : "Email already been used!"})
             }else{
                 if(pass1 === pass2){
-                    const user = new User_data({
-                        first_name : req.body.firstname,
-                        Sur_name : req.body.surname,
-                        email : req.body.email,
-                        password : req.body.password
+                    bcrypt.hash(pass1, saltrounds, (err, result)=>{
+                        if(err){
+                            console.log(err)
+                        }else{
+                            const user = new User_data({
+                                first_name : req.body.firstname,
+                                Sur_name : req.body.surname,
+                                email : req.body.email,
+                                password : result
+                            })
+                            user.save((err)=>{
+                                if(err){console.log(err)}else{
+                                    Events.find({}, (err, result)=>{
+                                        if(err){
+                                            console.log(err)
+                                        }else{
+                                            res.render("dashboard", {list : result, username: req.body.surname})
+                                        }
+                                    })
+                           }
+                            })
+                        }
                     })
-                    user.save((err)=>{
-                        if(err){console.log(err)}else{
-                    res.render("dashboard", {list : eventArray, username: req.body.surname})}
-                    })
+                    
                 }else{
                     res.render("create" ,{ passwordmessage : "password not match!"})
                 }
@@ -137,18 +151,20 @@ app.post("/sign", (req, res)=>{
                 console.log("the error is " + err)
             }else{
                 if(foundUser){
-                    if(password === foundUser.password){
-                        let name = foundUser.first_name;
-                        Events.find({}, (err, myre)=>{
-                            if(err){
-                                console.log(err)
-                            }else{
-                                res.render("dashboard", {list : myre, username: name})
-                            }
-                        })
-                    }else{
-                        res.render("sign",{ errormessage : "email and password not matched!"})
-                    }
+                    bcrypt.compare(password, foundUser.password, (err, result)=>{
+                        if(result === true){
+                            let name = foundUser.first_name;
+                            Events.find({}, (err, myre)=>{
+                                if(err){
+                                    console.log(err)
+                                }else{
+                                    res.render("dashboard", {list : myre, username: name})
+                                }
+                            })
+                        } else{
+                            res.render("sign",{ errormessage : "email and password not matched!"})
+                        }
+                    })  
                 }else{
                     if(!foundUser){
                         res.render("sign",{ errormessage : "user not found"})
